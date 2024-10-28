@@ -1,3 +1,5 @@
+"""Define a monolithic class to interface between the Spot Wrapper and ROS."""
+
 from __future__ import annotations
 
 import functools

@@ -1,4 +1,4 @@
-"""Define helper functions for converting between Protobuf and ROS messages."""
+"""Define helper functions to convert between Protobuf and ROS messages."""
 
 from __future__ import annotations
 
