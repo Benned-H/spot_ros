@@ -196,7 +196,6 @@ class SpotROS:
         self.latest_tf_seq: dict[str, int] = {}
 
         self.callbacks = {}
-        self.spot_wrapper = None
         """Dictionary listing what callback to use for what data task"""
         self.callbacks["robot_state"] = self.RobotStateCB
         self.callbacks["metrics"] = self.MetricsCB
@@ -2218,10 +2217,7 @@ class SpotROS:
         rospy.init_node("spot_ros", anonymous=True)
 
         self.rates = rospy.get_param("~rates", {})
-        if "loop_frequency" in self.rates:
-            loop_rate = self.rates["loop_frequency"]
-        else:
-            loop_rate = 50
+        loop_rate = self.rates.geet("loop_frequency", 50)
 
         for param, rate in self.rates.items():
             if rate > loop_rate:
