@@ -1813,10 +1813,10 @@ class SpotROS:
         self.tf_name_raw_kinematic = "odom"
         self.tf_name_vision_odom = rospy.get_param("~tf_name_vision_odom", "vision")
         self.tf_name_raw_vision = "vision"
-        if self.mode_parent_odom_tf not in set(
+        if self.mode_parent_odom_tf not in {
             self.tf_name_raw_kinematic,
             self.tf_name_raw_vision,
-        ):
+        }:
             rospy.logerr(
                 "rosparam '~mode_parent_odom_tf' should be 'odom' or 'vision'.",
             )
@@ -2217,7 +2217,7 @@ class SpotROS:
         rospy.init_node("spot_ros", anonymous=True)
 
         self.rates = rospy.get_param("~rates", {})
-        loop_rate = self.rates.geet("loop_frequency", 50)
+        loop_rate = self.rates.get("loop_frequency", 50)
 
         for param, rate in self.rates.items():
             if rate > loop_rate:
