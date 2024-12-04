@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-    <xacro:macro name="spot_leg" params="leg_name tf_prefix " >
+    <xacro:macro name="spot_leg" params="leg_name tf_prefix ">
 
         <xacro:if value="${leg_name == 'front_left'}">
-            <xacro:property name="base_to_hip_xyz"            value="${base_to_hip_x} ${base_to_hip_y} 0" />
-            <xacro:property name="hip_to_upper_leg_xyz"       value="0 ${hip_to_upper_leg_y} 0" />
-            <xacro:property name="leg_side"                   value="left" />
+            <xacro:property name="base_to_hip_xyz" value="${base_to_hip_x} ${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg_xyz" value="0 ${hip_to_upper_leg_y} 0" />
+            <xacro:property name="leg_side" value="left" />
         </xacro:if>
         <xacro:if value="${leg_name == 'front_right'}">
-            <xacro:property name="base_to_hip_xyz"            value="${base_to_hip_x} -${base_to_hip_y} 0" />
-            <xacro:property name="hip_to_upper_leg_xyz"       value="0 -${hip_to_upper_leg_y} 0" />
-            <xacro:property name="leg_side"                   value="right" />
+            <xacro:property name="base_to_hip_xyz" value="${base_to_hip_x} -${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg_xyz" value="0 -${hip_to_upper_leg_y} 0" />
+            <xacro:property name="leg_side" value="right" />
         </xacro:if>
         <xacro:if value="${leg_name == 'rear_left'}">
-            <xacro:property name="base_to_hip_xyz"            value="-${base_to_hip_x} ${base_to_hip_y} 0" />
-            <xacro:property name="hip_to_upper_leg_xyz"       value="0 ${hip_to_upper_leg_y} 0" />
-            <xacro:property name="leg_side"                   value="left" />
+            <xacro:property name="base_to_hip_xyz" value="-${base_to_hip_x} ${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg_xyz" value="0 ${hip_to_upper_leg_y} 0" />
+            <xacro:property name="leg_side" value="left" />
         </xacro:if>
         <xacro:if value="${leg_name == 'rear_right'}">
-            <xacro:property name="base_to_hip_xyz"            value="-${base_to_hip_x} -${base_to_hip_y} 0" />
-            <xacro:property name="hip_to_upper_leg_xyz"       value="0 -${hip_to_upper_leg_y} 0" />
-            <xacro:property name="leg_side"                   value="right" />
+            <xacro:property name="base_to_hip_xyz" value="-${base_to_hip_x} -${base_to_hip_y} 0" />
+            <xacro:property name="hip_to_upper_leg_xyz" value="0 -${hip_to_upper_leg_y} 0" />
+            <xacro:property name="leg_side" value="right" />
         </xacro:if>
 
         <link name="${tf_prefix}${leg_name}_hip">
@@ -31,14 +31,13 @@
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://spot_description/meshes/base/collision/${leg_name}_hip_collision.obj" />
+                    <!-- Spot's hips' visual and collision geometry are identical. -->
+                    <mesh filename="package://spot_description/meshes/base/visual/${leg_name}_hip.obj" />
                 </geometry>
             </collision>
             <inertial>
                 <mass value="${hip_mass}"/>
-                <inertia ixx="${(1/12) * hip_mass * (hip_width * hip_width + hip_height * hip_height)}" ixy="0.0" ixz="0.0"
-                            iyy="${(1/12) * hip_mass * (hip_length * hip_length + hip_height * hip_height)}" iyz="0.0"
-                            izz="${(1/12) * hip_mass * (hip_length * hip_length + hip_width * hip_width)}" />     
+                <inertia ixx="${(1/12) * hip_mass * (hip_width * hip_width + hip_height * hip_height)}" ixy="0.0" ixz="0.0" iyy="${(1/12) * hip_mass * (hip_length * hip_length + hip_height * hip_height)}" iyz="0.0" izz="${(1/12) * hip_mass * (hip_length * hip_length + hip_width * hip_width)}" />
             </inertial>
         </link>
 
@@ -64,9 +63,7 @@
             <inertial>
                 <origin xyz="0 0 -0.14" rpy="0 0 0" />
                 <mass value="${upper_leg_mass}"/>
-                <inertia ixx="${(1/12) * upper_leg_mass * (upper_leg_width * upper_leg_width + upper_leg_height * upper_leg_height)}" ixy="0.0" ixz="0.0"
-                            iyy="${(1/12) * upper_leg_mass * (upper_leg_length * upper_leg_length + upper_leg_height * upper_leg_height)}" iyz="0.0"
-                            izz="${(1/12) * upper_leg_mass * (upper_leg_length * upper_leg_length + upper_leg_width * upper_leg_width)}" />     
+                <inertia ixx="${(1/12) * upper_leg_mass * (upper_leg_width * upper_leg_width + upper_leg_height * upper_leg_height)}" ixy="0.0" ixz="0.0" iyy="${(1/12) * upper_leg_mass * (upper_leg_length * upper_leg_length + upper_leg_height * upper_leg_height)}" iyz="0.0" izz="${(1/12) * upper_leg_mass * (upper_leg_length * upper_leg_length + upper_leg_width * upper_leg_width)}" />
             </inertial>
         </link>
 
@@ -92,9 +89,7 @@
             <inertial>
                 <origin xyz="0 0 -0.16" rpy="0 0 0" />
                 <mass value="${lower_leg_mass}"/>
-                <inertia ixx="${(1/12) * lower_leg_mass * (lower_leg_width * lower_leg_width + lower_leg_height * lower_leg_height)}" ixy="0.0" ixz="0.0"
-                            iyy="${(1/12) * lower_leg_mass * (lower_leg_length * lower_leg_length + lower_leg_height * lower_leg_height)}" iyz="0.0"
-                            izz="${(1/12) * lower_leg_mass * (lower_leg_length * lower_leg_length + lower_leg_width * lower_leg_width)}" />     
+                <inertia ixx="${(1/12) * lower_leg_mass * (lower_leg_width * lower_leg_width + lower_leg_height * lower_leg_height)}" ixy="0.0" ixz="0.0" iyy="${(1/12) * lower_leg_mass * (lower_leg_length * lower_leg_length + lower_leg_height * lower_leg_height)}" iyz="0.0" izz="${(1/12) * lower_leg_mass * (lower_leg_length * lower_leg_length + lower_leg_width * lower_leg_width)}" />
             </inertial>
         </link>
 

@@ -69,10 +69,10 @@
 
         <!-- Macros for Spot's legs. -->
         <xacro:include filename="$(find spot_description)/urdf/spot_leg.urdf.xacro" />
-        <xacro:spot_leg leg_name="front_left"/>
-        <xacro:spot_leg leg_name="front_right"/>
-        <xacro:spot_leg leg_name="rear_left"/>
-        <xacro:spot_leg leg_name="rear_right"/>
+        <xacro:spot_leg leg_name="front_left" tf_prefix="${tf_prefix}"/>
+        <xacro:spot_leg leg_name="front_right" tf_prefix="${tf_prefix}"/>
+        <xacro:spot_leg leg_name="rear_left" tf_prefix="${tf_prefix}"/>
+        <xacro:spot_leg leg_name="rear_right" tf_prefix="${tf_prefix}"/>
 
         <!-- Standard accessories. -->
         <xacro:include filename="$(find spot_description)/urdf/accessories.urdf.xacro" />
@@ -83,7 +83,7 @@
         <!-- Include Arm if necessary-->
         <xacro:if value="${arm}">
             <xacro:include filename="$(find spot_description)/urdf/spot_arm_macro.urdf" />
-            <xacro:load_arm tf_prefix="${tf_prefix}" />
+            <xacro:load_arm tf_prefix="${tf_prefix}"/>
         </xacro:if>
 
         <!-- Include Gazebo control if necessary -->
