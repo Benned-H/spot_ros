@@ -3,35 +3,9 @@
 
   <xacro:macro name="load_accessories" params="pack:=false lidar_mount:=false velodyne:=false velodyne_xyz:='0 0 0' velodyne_rpy:='0 0 0'">
 
-    <xacro:if value="${pack}">
-      <joint name="pack_mount_joint" type="fixed">
-        <parent link="base_link"/>
-        <child link="pack_mount"/>
-        <origin xyz="-0.019986 0 0.093662" rpy="0 0 0"/>
-      </joint>
-
-      <link name="pack_mount">
-        <visual>
-          <geometry>
-            <mesh filename="package://spot_description/meshes/base/visual/pack_top.obj"/>
-          </geometry>
-        </visual>
-        <visual>
-          <geometry>
-            <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj"/>
-          </geometry>
-        </visual>
-        <collision>
-          <geometry>
-            <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj"/>
-          </geometry>
-        </collision>
-      </link>
-    </xacro:if>
-
     <xacro:if value="${lidar_mount}">
       <joint name="lidar_mount_joint" type="fixed">
-        <parent link="pack_mount"/>
+        <parent link="base_link"/>
         <child link="lidar_mount"/>
         <origin xyz="0.015 0 0.149285" rpy="0 0 0"/>
       </joint>

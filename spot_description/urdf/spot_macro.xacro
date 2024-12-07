@@ -351,13 +351,13 @@
 
 
         <!-- Include LIDAR if requested -->
-        <xacro:include filename="$(find spot_description)/urdf/accessories.urdf.xacro" />
-        <xacro:load_accessories pack="true" lidar_mount="true" velodyne="true" />
+        <!--<xacro:include filename="$(find spot_description)/urdf/accessories.urdf.xacro" />
+        <xacro:load_accessories pack="true" lidar_mount="true" velodyne="true" />-->
 
-        <!--  <xacro:if value="${lidar}">
+        <xacro:if value="${lidar}">
             <xacro:include filename="$(find spot_description)/urdf/accessories.urdf.xacro" />
-            <xacro:load_accessories pack="true" lidar_mount="true" velodyne="true" />
-        </xacro:if>-->
+            <xacro:load_accessories pack="false" lidar_mount="true" velodyne="true" />
+        </xacro:if>
 
         <!-- Optional custom includes -->
         <xacro:include filename="$(optenv SPOT_URDF_EXTRAS empty.urdf)" />
