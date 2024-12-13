@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <robot name="spot_arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <xacro:macro name="load_arm" params="
-    tf_prefix">
+  <xacro:macro name="load_arm" params=" tf_prefix">
 
     <link name="${tf_prefix}arm_link_sh0">
       <visual>
