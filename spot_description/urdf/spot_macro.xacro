@@ -4,7 +4,7 @@
 
     <xacro:include filename="$(find spot_description)/urdf/constants.urdf.xacro" />
 
-    <xacro:macro name="load_spot" params="arm:=false gazebo:=false tf_prefix">
+    <xacro:macro name="load_spot" params="arm gazebo tf_prefix">
 
         <link name="${tf_prefix}body">
             <visual>
