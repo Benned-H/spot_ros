@@ -3,25 +3,25 @@
 
   <xacro:if value="$(optenv SPOT_PACK 0)">
     <joint name="pack_mount_joint" type="fixed">
-      <parent link="base_link"/>
-      <child link="pack_mount"/>
-      <origin xyz="-0.019986 0 0.093662" rpy="0 0 0"/>
+      <parent link="base_link" />
+      <child link="pack_mount" />
+      <origin xyz="-0.019986 0 0.093662" rpy="0 0 0" />
     </joint>
 
     <link name="pack_mount">
       <visual>
         <geometry>
-          <mesh filename="package://spot_description/meshes/base/visual/pack_top.obj"/>
+          <mesh filename="package://spot_description/meshes/base/visual/pack_top.obj" />
         </geometry>
       </visual>
       <visual>
         <geometry>
-          <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj"/>
+          <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj" />
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj"/>
+          <mesh filename="package://spot_description/meshes/base/visual/pack_body.obj" />
         </geometry>
       </collision>
     </link>
@@ -29,20 +29,21 @@
 
   <xacro:if value="$(optenv SPOT_LIDAR_MOUNT 0)">
     <joint name="lidar_mount_joint" type="fixed">
-      <parent link="pack_mount"/>
-      <child link="lidar_mount"/>
-      <origin xyz="0.015 0 0.149285" rpy="0 0 0"/>
+      <parent link="pack_mount" />
+      <child link="lidar_mount" />
+      <origin xyz="0.015 0 0.149285" rpy="0 0 0" />
     </joint>
 
     <link name="lidar_mount">
       <visual>
         <geometry>
-          <mesh filename="package://spot_description/meshes/base/visual/lidar_mount.obj"/>
+          <mesh filename="package://spot_description/meshes/base/visual/lidar_mount.obj" />
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://spot_description/meshes/base/collision/lidar_mount_collision.stl"/>
+          <mesh
+            filename="package://spot_description/meshes/base/collision/lidar_mount_collision.stl" />
         </geometry>
       </collision>
     </link>
@@ -58,14 +59,16 @@
       <link name="velodyne_cage">
         <visual>
           <geometry>
-            <mesh filename="package://spot_description/meshes/base/collision/velodyne_cage.stl" scale="0.001 0.001 0.001" />
+            <mesh filename="package://spot_description/meshes/base/collision/velodyne_cage.stl"
+              scale="0.001 0.001 0.001" />
           </geometry>
           <origin xyz="0 0 0" rpy="0 0 0" />
           <material name="black" />
         </visual>
         <collision>
           <geometry>
-            <mesh filename="package://spot_description/meshes/base/collision/velodyne_cage.stl" scale="0.001 0.001 0.001" />
+            <mesh filename="package://spot_description/meshes/base/collision/velodyne_cage.stl"
+              scale="0.001 0.001 0.001" />
           </geometry>
           <origin xyz="0 0 0" rpy="0 0 0" />
         </collision>
@@ -78,13 +81,15 @@
     </xacro:if>
   </xacro:if>
 
-  <xacro:if value="$(optenv CHAMP_GAZEBO 0)">
+  <xacro:if value="${gazebo}">
+
     <xacro:include filename="$(find spot_description)/urdf/constants.urdf.xacro" />
     <xacro:include filename="$(find hector_sensors_description)/urdf/hokuyo_utm30lx.urdf.xacro" />
     <xacro:include filename="$(find hector_sensors_description)/urdf/asus_camera.urdf.xacro" />
 
-    <xacro:hokuyo_utm30lx name="hokuyo" parent="base_link" ros_topic="scan" update_rate="30" ray_count="1040" min_angle="130" max_angle="-130">
-      <origin xyz="0.0 0.0 ${base_height / 2 + 0.04}" rpy="0 0 0"/>
+    <xacro:hokuyo_utm30lx name="hokuyo" parent="base_link" ros_topic="scan" update_rate="30"
+      ray_count="1040" min_angle="130" max_angle="-130">
+      <origin xyz="0.0 0.0 ${base_height / 2 + 0.04}" rpy="0 0 0" />
     </xacro:hokuyo_utm30lx>
 
     <gazebo reference="hokuyo_frame">
@@ -92,7 +97,7 @@
     </gazebo>
 
     <xacro:asus_camera parent="base_link" name="camera">
-      <origin xyz="${base_length / 2 - 0.05} 0.0 -${base_height / 2 + 0.01}" rpy="0 0 0"/>
+      <origin xyz="${base_length / 2 - 0.05} 0.0 -${base_height / 2 + 0.01}" rpy="0 0 0" />
     </xacro:asus_camera>
 
     <gazebo>
@@ -111,15 +116,16 @@
 
     <link name="imu_link">
       <inertial>
-        <mass value="0.001"/>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="1e-09" ixy="0.0" ixz="0.0" iyy="1e-09" iyz="0.0" izz="1e-09"/>
+        <mass value="0.001" />
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <inertia ixx="1e-09" ixy="0.0" ixz="0.0" iyy="1e-09" iyz="0.0" izz="1e-09" />
       </inertial>
     </link>
     <joint name="imu_joint" type="fixed">
       <parent link="base_link" />
       <child link="imu_link" />
     </joint>
+
   </xacro:if>
 
 </robot>
