@@ -393,18 +393,26 @@ class SpotROS:
             image_bundle.back,
             self.spot_wrapper,
         )
+        hand_image_msg, hand_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+            image_bundle.hand,
+            self.spot_wrapper,
+        )
+
 
         self.frontleft_depth_in_visual_pub.publish(frontleft_image_msg)
         self.frontright_depth_in_visual_pub.publish(frontright_image_msg)
         self.left_depth_in_visual_pub.publish(left_image_msg)
         self.right_depth_in_visual_pub.publish(right_image_msg)
         self.back_depth_in_visual_pub.publish(back_image_msg)
+        self.hand_depth_in_hand_color_pub.publish(hand_image_msg)
+
 
         self.frontleft_depth_in_visual_info_pub.publish(frontleft_camera_info)
         self.frontright_depth_in_visual_info_pub.publish(frontright_camera_info)
         self.left_depth_in_visual_info_pub.publish(left_camera_info)
         self.right_depth_in_visual_info_pub.publish(right_camera_info)
         self.back_depth_in_visual_info_pub.publish(back_camera_info)
+        self.hand_depth_in_color_info_pub.publish(hand_camera_info)
 
     def publish_depth_standard_images_callback(self):
         image_bundle = self.spot_wrapper.spot_images.get_depth_images()
@@ -434,18 +442,24 @@ class SpotROS:
             image_bundle.back,
             self.spot_wrapper,
         )
+        hand_image_msg, hand_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+            image_bundle.hand,
+            self.spot_wrapper,
+        )
 
         self.frontleft_depth_pub.publish(frontleft_image_msg)
         self.frontright_depth_pub.publish(frontright_image_msg)
         self.left_depth_pub.publish(left_image_msg)
         self.right_depth_pub.publish(right_image_msg)
         self.back_depth_pub.publish(back_image_msg)
+        self.hand_depth_pub.publish(hand_image_msg)
 
         self.frontleft_depth_info_pub.publish(frontleft_camera_info)
         self.frontright_depth_info_pub.publish(frontright_camera_info)
         self.left_depth_info_pub.publish(left_camera_info)
         self.right_depth_info_pub.publish(right_camera_info)
         self.back_depth_info_pub.publish(back_camera_info)
+        self.hand_depth_info_pub.publish(hand_camera_info)
 
     def publish_camera_images_callback(self):
         image_bundle = self.spot_wrapper.spot_images.get_camera_images()
@@ -475,24 +489,31 @@ class SpotROS:
             image_bundle.back,
             self.spot_wrapper,
         )
+        hand_image_msg, hand_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+            image_bundle.hand,
+            self.spot_wrapper,
+        )
 
         self.frontleft_image_pub.publish(frontleft_image_msg)
         self.frontright_image_pub.publish(frontright_image_msg)
         self.left_image_pub.publish(left_image_msg)
         self.right_image_pub.publish(right_image_msg)
         self.back_image_pub.publish(back_image_msg)
+        self.hand_image_color_pub.publish(hand_image_msg)
 
         self.frontleft_image_info_pub.publish(frontleft_camera_info)
         self.frontright_image_info_pub.publish(frontright_camera_info)
         self.left_image_info_pub.publish(left_camera_info)
         self.right_image_info_pub.publish(right_camera_info)
         self.back_image_info_pub.publish(back_camera_info)
+        self.hand_image_color_info_pub.publish(hand_camera_info)
 
         self.populate_camera_static_transforms(image_bundle.frontleft)
         self.populate_camera_static_transforms(image_bundle.frontright)
         self.populate_camera_static_transforms(image_bundle.left)
         self.populate_camera_static_transforms(image_bundle.right)
         self.populate_camera_static_transforms(image_bundle.back)
+        self.populate_camera_static_transforms(image_bundle.hand)
 
     def publish_depth_images_callback(self):
         if self.depth_in_visual:
