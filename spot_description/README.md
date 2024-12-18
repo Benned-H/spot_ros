@@ -2,9 +2,21 @@
 
 This package has been excised from the [`spot_ros2`](https://github.com/bdaiinstitute/spot_ros2) repository and modified to work with ROS 1 Noetic.
 
+To regenerate the current URDF without Gazebo, move to `spot_ros/spot_description` and run:
+
+```bash
+xacro urdf/spot.urdf.xacro > urdf/spot.urdf
+```
+
+To include Gazebo components in the URDF, use the command:
+
+```bash
+xacro urdf/spot.urdf.xacro gazebo:=true > urdf/spot-gazebo.urdf
+```
+
 ## Original README
 
-This ROS 2 package contains the URDF files for Spot. There are two Spot models, referred to as `spot` and `spot_simple`, which primarily differ in the number of links in the base frame. There is also a `standalone_arm` model to view the Spot Arm independently. 
+This ROS 2 package contains the URDF files for Spot. There are two Spot models, referred to as `spot` and `spot_simple`, which primarily differ in the number of links in the base frame. There is also a `standalone_arm` model to view the Spot Arm independently.
 
 To get the plain URDF files, run the following commands in the `spot_description` directory:
 
@@ -34,19 +46,20 @@ ros2 launch spot_description standalone_arm.launch.py
 
 ## Model Properties
 
-The inertial properties of Spot and its arm are extracted from `Isaac Sim`, which based on the collision geometry and uniform mass distribution, defines the mass, CoM, and inertia tensor around the CoM frame. The inertia tensors are around their principal axes. Therefore, the CoM frames are rotated. 
+The inertial properties of Spot and its arm are extracted from `Isaac Sim`, which based on the collision geometry and uniform mass distribution, defines the mass, CoM, and inertia tensor around the CoM frame. The inertia tensors are around their principal axes. Therefore, the CoM frames are rotated.
 
 For the arm, we use the following mass values:
-+ `body` = 32.86
-+ `hip` = 1.68
-+ `uleg` = 2.34
-+ `lleg` = 0.35
-+ `arm_link_sh0` + `arm_link_sh1` = 2.596 Kg (sh0 : 90%, sh1 : 10%)
-+ `arm_link_hr0` = 0.0
-+ `arm_link_el0` + `arm_link_el1` = 1.450 Kg (el0 : 50%, el1 : 50%)
-+ `arm_link_wr0` = 0.980 Kg
-+ `arm_link_wr1` = 0.785 Kg
-+ `arm_link_fngr` = 0.200 Kg 
+
+- `body` = 32.86
+- `hip` = 1.68
+- `uleg` = 2.34
+- `lleg` = 0.35
+- `arm_link_sh0` + `arm_link_sh1` = 2.596 Kg (sh0 : 90%, sh1 : 10%)
+- `arm_link_hr0` = 0.0
+- `arm_link_el0` + `arm_link_el1` = 1.450 Kg (el0 : 50%, el1 : 50%)
+- `arm_link_wr0` = 0.980 Kg
+- `arm_link_wr1` = 0.785 Kg
+- `arm_link_fngr` = 0.200 Kg
 
 To get these inertial properties, use the following method:
 
