@@ -287,8 +287,7 @@ class SpotROS:
                 self.spot_wrapper,
             )
             self.is_charging = (
-                battery_states_array_msg.battery_states[0].status
-                == BatteryState.STATUS_CHARGING
+                battery_states_array_msg.battery_states[0].status == BatteryState.STATUS_CHARGING
             )
             self.battery_pub.publish(battery_states_array_msg)
 
@@ -971,15 +970,15 @@ class SpotROS:
                 req.obstacle_params.disable_vision_negative_obstacles,
             ],
         ):
-            disable_notallowed = " Disabling any of the obstacle avoidance components is not currently allowed."
+            disable_notallowed = (
+                " Disabling any of the obstacle avoidance components is not currently allowed."
+            )
             rospy.logerr(
                 "At least one of the disable settings on obstacle params was true."
                 + disable_notallowed,
             )
 
-        obstacle_params.obstacle_avoidance_padding = (
-            req.obstacle_params.obstacle_avoidance_padding
-        )
+        obstacle_params.obstacle_avoidance_padding = req.obstacle_params.obstacle_avoidance_padding
 
         mobility_params.obstacle_params.CopyFrom(obstacle_params)
         self.spot_wrapper.set_mobility_params(mobility_params)
@@ -1013,9 +1012,7 @@ class SpotROS:
             )
 
         if req.terrain_params.grated_surfaces_mode in [1, 2, 3]:
-            terrain_params.grated_surfaces_mode = (
-                req.terrain_params.grated_surfaces_mode
-            )
+            terrain_params.grated_surfaces_mode = req.terrain_params.grated_surfaces_mode
         else:
             return (
                 False,
@@ -1404,9 +1401,7 @@ class SpotROS:
     def handle_navigate_to_feedback(self):
         """Thread function to send navigate_to feedback."""
         while not rospy.is_shutdown() and self.run_navigate_to:
-            localization_state = (
-                self.spot_wrapper._graph_nav_client.get_localization_state()
-            )
+            localization_state = self.spot_wrapper._graph_nav_client.get_localization_state()
             if localization_state.localization.waypoint_id:
                 self.navigate_as.publish_feedback(
                     NavigateToFeedback(localization_state.localization.waypoint_id),
@@ -1445,9 +1440,7 @@ class SpotROS:
     def handle_navigate_route_feedback(self):
         """Thread function to send navigate_route feedback."""
         while not rospy.is_shutdown() and self.run_navigate_route:
-            localization_state = (
-                self.spot_wrapper._graph_nav_client.get_localization_state()
-            )
+            localization_state = self.spot_wrapper._graph_nav_client.get_localization_state()
             if localization_state.localization.waypoint_id:
                 self.navigate_route_as.publish_feedback(
                     NavigateRouteFeedback(localization_state.localization.waypoint_id),
@@ -1508,11 +1501,9 @@ class SpotROS:
         for frame_name in image_data.shot.transforms_snapshot.child_to_parent_edge_map:
             if frame_name in excluded_frames:
                 continue
-            parent_frame = (
-                image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(
-                    frame_name,
-                ).parent_frame_name
-            )
+            parent_frame = image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(
+                frame_name,
+            ).parent_frame_name
             existing_transforms = [
                 (transform.header.frame_id, transform.child_frame_id)
                 for transform in self.sensors_static_transforms
@@ -1521,10 +1512,8 @@ class SpotROS:
                 # We already extracted this transform
                 continue
 
-            transform = (
-                image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(
-                    frame_name,
-                )
+            transform = image_data.shot.transforms_snapshot.child_to_parent_edge_map.get(
+                frame_name,
             )
             local_time = self.spot_wrapper.robotToLocalTime(
                 image_data.shot.acquisition_time,
@@ -1565,7 +1554,9 @@ class SpotROS:
             self.tf_name_kinematic_odom,
             "body",
         ]
-        for frame_name in point_cloud_data.point_cloud.source.transforms_snapshot.child_to_parent_edge_map:
+        for (
+            frame_name
+        ) in point_cloud_data.point_cloud.source.transforms_snapshot.child_to_parent_edge_map:
             if frame_name in excluded_frames:
                 continue
             parent_frame = point_cloud_data.point_cloud.source.transforms_snapshot.child_to_parent_edge_map.get(
@@ -1694,39 +1685,25 @@ class SpotROS:
         try:
             mobility_params = self.spot_wrapper.get_mobility_params()
             mobility_params_msg.body_control.position.x = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.position.x
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.position.x
             )
             mobility_params_msg.body_control.position.y = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.position.y
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.position.y
             )
             mobility_params_msg.body_control.position.z = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.position.z
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.position.z
             )
             mobility_params_msg.body_control.orientation.x = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.rotation.x
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.rotation.x
             )
             mobility_params_msg.body_control.orientation.y = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.rotation.y
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.rotation.y
             )
             mobility_params_msg.body_control.orientation.z = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.rotation.z
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.rotation.z
             )
             mobility_params_msg.body_control.orientation.w = (
-                mobility_params.body_control.base_offset_rt_footprint.points[
-                    0
-                ].pose.rotation.w
+                mobility_params.body_control.base_offset_rt_footprint.points[0].pose.rotation.w
             )
             mobility_params_msg.locomotion_hint = mobility_params.locomotion_hint
             mobility_params_msg.stair_hint = mobility_params.stair_hint
@@ -1734,10 +1711,18 @@ class SpotROS:
             mobility_params_msg.obstacle_params.obstacle_avoidance_padding = (
                 mobility_params.obstacle_params.obstacle_avoidance_padding
             )
-            mobility_params_msg.obstacle_params.disable_vision_foot_obstacle_avoidance = mobility_params.obstacle_params.disable_vision_foot_obstacle_avoidance
-            mobility_params_msg.obstacle_params.disable_vision_foot_constraint_avoidance = mobility_params.obstacle_params.disable_vision_foot_constraint_avoidance
-            mobility_params_msg.obstacle_params.disable_vision_body_obstacle_avoidance = mobility_params.obstacle_params.disable_vision_body_obstacle_avoidance
-            mobility_params_msg.obstacle_params.disable_vision_foot_obstacle_body_assist = mobility_params.obstacle_params.disable_vision_foot_obstacle_body_assist
+            mobility_params_msg.obstacle_params.disable_vision_foot_obstacle_avoidance = (
+                mobility_params.obstacle_params.disable_vision_foot_obstacle_avoidance
+            )
+            mobility_params_msg.obstacle_params.disable_vision_foot_constraint_avoidance = (
+                mobility_params.obstacle_params.disable_vision_foot_constraint_avoidance
+            )
+            mobility_params_msg.obstacle_params.disable_vision_body_obstacle_avoidance = (
+                mobility_params.obstacle_params.disable_vision_body_obstacle_avoidance
+            )
+            mobility_params_msg.obstacle_params.disable_vision_foot_obstacle_body_assist = (
+                mobility_params.obstacle_params.disable_vision_foot_obstacle_body_assist
+            )
             mobility_params_msg.obstacle_params.disable_vision_negative_obstacles = (
                 mobility_params.obstacle_params.disable_vision_negative_obstacles
             )

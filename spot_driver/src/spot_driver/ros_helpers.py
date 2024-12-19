@@ -389,15 +389,9 @@ def GetFeetFromState(
             terrain = foot.terrain
             foot_msg.terrain.ground_mu_est = terrain.ground_mu_est
             foot_msg.terrain.frame_name = terrain.frame_name
-            foot_msg.terrain.foot_slip_distance_rt_frame = (
-                terrain.foot_slip_distance_rt_frame
-            )
-            foot_msg.terrain.foot_slip_velocity_rt_frame = (
-                terrain.foot_slip_velocity_rt_frame
-            )
-            foot_msg.terrain.ground_contact_normal_rt_frame = (
-                terrain.ground_contact_normal_rt_frame
-            )
+            foot_msg.terrain.foot_slip_distance_rt_frame = terrain.foot_slip_distance_rt_frame
+            foot_msg.terrain.foot_slip_velocity_rt_frame = terrain.foot_slip_velocity_rt_frame
+            foot_msg.terrain.ground_contact_normal_rt_frame = terrain.ground_contact_normal_rt_frame
             foot_msg.terrain.visual_surface_ground_penetration_mean = (
                 terrain.visual_surface_ground_penetration_mean
             )
@@ -428,24 +422,12 @@ def GetOdomTwistFromState(
         state.kinematic_state.acquisition_timestamp,
     )
     twist_odom_msg.header.stamp = rospy.Time(local_time.seconds, local_time.nanos)
-    twist_odom_msg.twist.twist.linear.x = (
-        state.kinematic_state.velocity_of_body_in_odom.linear.x
-    )
-    twist_odom_msg.twist.twist.linear.y = (
-        state.kinematic_state.velocity_of_body_in_odom.linear.y
-    )
-    twist_odom_msg.twist.twist.linear.z = (
-        state.kinematic_state.velocity_of_body_in_odom.linear.z
-    )
-    twist_odom_msg.twist.twist.angular.x = (
-        state.kinematic_state.velocity_of_body_in_odom.angular.x
-    )
-    twist_odom_msg.twist.twist.angular.y = (
-        state.kinematic_state.velocity_of_body_in_odom.angular.y
-    )
-    twist_odom_msg.twist.twist.angular.z = (
-        state.kinematic_state.velocity_of_body_in_odom.angular.z
-    )
+    twist_odom_msg.twist.twist.linear.x = state.kinematic_state.velocity_of_body_in_odom.linear.x
+    twist_odom_msg.twist.twist.linear.y = state.kinematic_state.velocity_of_body_in_odom.linear.y
+    twist_odom_msg.twist.twist.linear.z = state.kinematic_state.velocity_of_body_in_odom.linear.z
+    twist_odom_msg.twist.twist.angular.x = state.kinematic_state.velocity_of_body_in_odom.angular.x
+    twist_odom_msg.twist.twist.angular.y = state.kinematic_state.velocity_of_body_in_odom.angular.y
+    twist_odom_msg.twist.twist.angular.z = state.kinematic_state.velocity_of_body_in_odom.angular.z
     return twist_odom_msg
 
 
@@ -638,9 +620,7 @@ def GetTFFromState(
     """
     tf_msg = TFMessage()
 
-    for (
-        frame_name
-    ) in state.kinematic_state.transforms_snapshot.child_to_parent_edge_map:
+    for frame_name in state.kinematic_state.transforms_snapshot.child_to_parent_edge_map:
         if state.kinematic_state.transforms_snapshot.child_to_parent_edge_map.get(
             frame_name,
         ).parent_frame_name:
@@ -959,12 +939,8 @@ def GetAprilTagPropertiesMsg(
     april_tag_properties_msg.y = data.dimensions.y
     april_tag_properties_msg.frame_name_fiducial = data.frame_name_fiducial
     april_tag_properties_msg.fiducial_pose_status = data.fiducial_pose_status
-    april_tag_properties_msg.frame_name_fiducial_filtered = (
-        data.frame_name_fiducial_filtered
-    )
-    april_tag_properties_msg.fiducial_filtered_pose_status = (
-        data.fiducial_filtered_pose_status
-    )
+    april_tag_properties_msg.frame_name_fiducial_filtered = data.frame_name_fiducial_filtered
+    april_tag_properties_msg.fiducial_filtered_pose_status = data.fiducial_filtered_pose_status
     april_tag_properties_msg.frame_name_camera = data.frame_name_camera
     april_tag_properties_msg.detection_covariance = PoseWithCovariance()
     april_tag_properties_msg.detection_covariance.pose = Pose()
@@ -1010,13 +986,9 @@ def GetImagePropertiesMsg(
         image_properties_msg.binary_descriptor = [
             i.binary_descriptor for i in data.keypoints.keypoints
         ]
-        image_properties_msg.keypoint_score = [
-            i.score for i in data.keypoints.keypoints
-        ]
+        image_properties_msg.keypoint_score = [i.score for i in data.keypoints.keypoints]
         image_properties_msg.keypoint_size = [i.size for i in data.keypoints.keypoints]
-        image_properties_msg.keypoint_angle = [
-            i.angle for i in data.keypoints.keypoints
-        ]
+        image_properties_msg.keypoint_angle = [i.angle for i in data.keypoints.keypoints]
 
     image_properties_msg.image_source.name = data.image_source.name
     image_properties_msg.image_source.cols = data.image_source.cols
@@ -1034,12 +1006,8 @@ def GetImagePropertiesMsg(
     image_properties_msg.image_source.principal_point_y = (
         data.image_source.pinhole.intrinsics.principal_point.y
     )
-    image_properties_msg.image_source.skew_x = (
-        data.image_source.pinhole.intrinsics.skew.x
-    )
-    image_properties_msg.image_source.skew_y = (
-        data.image_source.pinhole.intrinsics.skew.y
-    )
+    image_properties_msg.image_source.skew_x = data.image_source.pinhole.intrinsics.skew.x
+    image_properties_msg.image_source.skew_y = data.image_source.pinhole.intrinsics.skew.y
 
     image_properties_msg.image_source.image_type = data.image_source.image_type
     image_properties_msg.image_source.pixel_formats = list(
@@ -1070,13 +1038,9 @@ def GetImagePropertiesMsg(
     image_properties_msg.image_capture.capture_exposure_duration.nsecs = (
         data.image_capture.capture_params.exposure_duration.nanos
     )
-    image_properties_msg.image_capture.capture_sensor_gain = (
-        data.image_capture.capture_params.gain
-    )
+    image_properties_msg.image_capture.capture_sensor_gain = data.image_capture.capture_params.gain
 
-    image_properties_msg.frame_name_image_coordinates = (
-        data.frame_name_image_coordinates
-    )
+    image_properties_msg.frame_name_image_coordinates = data.frame_name_image_coordinates
 
     return image_properties_msg
 
@@ -1102,15 +1066,9 @@ def GetWorldObjectsMsg(
         id: int = world_object.id
         name: str = world_object.name
         acquisition_time: Timestamp = world_object.acquisition_time
-        frame_tree_snapshot: geometry_pb2.FrameTreeSnapshot = (
-            world_object.transforms_snapshot
-        )
-        apriltag_properties: world_object_pb2.AprilTagProperties = (
-            world_object.apriltag_properties
-        )
-        image_properties: world_object_pb2.ImageProperties = (
-            world_object.image_properties
-        )
+        frame_tree_snapshot: geometry_pb2.FrameTreeSnapshot = world_object.transforms_snapshot
+        apriltag_properties: world_object_pb2.AprilTagProperties = world_object.apriltag_properties
+        image_properties: world_object_pb2.ImageProperties = world_object.image_properties
         dock_properties: world_object_pb2.DockProperties = world_object.dock_properties
         ray_properties: world_object_pb2.RayProperties = world_object.ray_properties
         bounding_box_properties: world_object_pb2.BoundingBoxProperties = (
