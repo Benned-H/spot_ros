@@ -46,7 +46,6 @@
 
     <link name="${tf_prefix}arm_link_sh1">
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
           <mesh filename="package://spot_description/meshes/arm/visual/arm_link_sh1.obj" />
         </geometry>
@@ -54,6 +53,11 @@
           <color rgba="0.2 0.2 0.2 1" />
         </material>
       </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://spot_description/meshes/arm/visual/arm_link_sh1.obj" />
+        </geometry>
+      </collision>
       <inertial>
         <origin rpy="0.009910032200701302 -0.5123007314267984 0.002209016500439809"
           xyz="2.4176391889341176e-05 2.4116111490002368e-06 -1.0059113265015185e-05" />
@@ -73,7 +77,6 @@
 
     <link name="${tf_prefix}arm_link_hr0">
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
           <mesh filename="package://spot_description/meshes/arm/visual/arm_link_hr0.obj" />
         </geometry>

@@ -65,6 +65,12 @@
                         filename="package://spot_description/meshes/base/visual/front_left_hip.obj" />
                 </geometry>
             </visual>
+            <collision>
+                <geometry>
+                    <mesh
+                        filename="package://spot_description/meshes/base/visual/front_left_hip.obj" />
+                </geometry>
+            </collision>
             <inertial>
                 <origin rpy="-0.716521349312305 0.02956473059648479 0.03655230014702582"
                     xyz="-0.005374345928430557 0.012841847725212574 9.875232353806496e-05" />
@@ -151,6 +157,12 @@
                         filename="package://spot_description/meshes/base/visual/front_right_hip.obj" />
                 </geometry>
             </visual>
+            <collision>
+                <geometry>
+                    <mesh
+                        filename="package://spot_description/meshes/base/visual/front_right_hip.obj" />
+                </geometry>
+            </collision>
             <inertial>
                 <origin rpy="0.7165213493123055 -0.02956473059648479 0.03655230014702582"
                     xyz="-0.005374345928430557 -0.012841847725212574 -9.875232353806496e-05" />
@@ -237,6 +249,12 @@
                         filename="package://spot_description/meshes/base/visual/rear_left_hip.obj" />
                 </geometry>
             </visual>
+            <collision>
+                <geometry>
+                    <mesh
+                        filename="package://spot_description/meshes/base/visual/rear_left_hip.obj" />
+                </geometry>
+            </collision>
             <inertial>
                 <origin rpy="0.7165213493123055 -0.02956473059648479 0.03655230014702582"
                     xyz="-0.005374345928430557 -0.012841847725212574 -9.875232353806496e-05" />
@@ -323,6 +341,12 @@
                         filename="package://spot_description/meshes/base/visual/rear_right_hip.obj" />
                 </geometry>
             </visual>
+            <collision>
+                <geometry>
+                    <mesh
+                        filename="package://spot_description/meshes/base/visual/rear_right_hip.obj" />
+                </geometry>
+            </collision>
             <inertial>
                 <origin rpy="0.7165213493123055 -0.02956473059648479 0.03655230014702582"
                     xyz="-0.005374345928430557 -0.012841847725212574 -9.875232353806496e-05" />
