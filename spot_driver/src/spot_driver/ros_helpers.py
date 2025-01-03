@@ -90,7 +90,7 @@ friendly_joint_names["arm0.f1x"] = "arm_gripper"
 class DefaultCameraInfo(CameraInfo):
     """Blank class extending CameraInfo ROS topic that defaults most parameters."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.distortion_model = "plumb_bob"
 
@@ -293,7 +293,7 @@ def GetPointCloudMsg(
 def GetJointStatesFromState(
     state: robot_state_pb2.RobotState,
     spot_wrapper: SpotWrapper,
-):
+) -> JointState:
     """Map joint state data from robot state Protobuf to ROS JointState message.
 
     :param      state           Robot State proto
@@ -501,8 +501,8 @@ def get_corrected_odom(base_odometry: Odometry) -> Odometry:
 def GetOdomFromState(
     state: robot_state_pb2.RobotState,
     spot_wrapper: SpotWrapper,
-    use_vision=True,
-):
+    use_vision: bool = True,
+) -> Odometry:
     """Map odometry data from robot state proto to ROS Odometry message.
 
     WARNING: The odometry twist from this message is in the odom frame and not in the
