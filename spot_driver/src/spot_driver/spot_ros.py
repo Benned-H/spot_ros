@@ -7,7 +7,7 @@ import logging
 import math
 import threading
 import time
-from typing import Callable
+from typing import Any, Callable
 
 import actionlib
 import rospy
@@ -20,6 +20,7 @@ from bosdyn.client import math_helpers
 from geometry_msgs.msg import (
     Pose,
     PoseStamped,
+    TransformStamped,
     Twist,
     TwistWithCovarianceStamped,
 )
@@ -192,8 +193,8 @@ class SpotROS:
         self.last_world_objects_tf_msg = TFMessage()
         self.last_feet_tf_msg = TFMessage()
 
-        # Map each TF child frame to the latest time at which we have its transform
-        self.latest_tf_seq: dict[str, int] = {}
+        # Map the name of each TF child frame to the latest transform we have for that frame
+        self.latest_tfs: dict[str, TransformStamped] = {}
 
         self.callbacks = {}
         """Dictionary listing what callback to use for what data task"""
@@ -204,30 +205,39 @@ class SpotROS:
         self.callbacks["lidar_points"] = self.PointCloudCB
         self.callbacks["world_objects"] = self.WorldObjectsCB
 
-    def filter_tfs(self, tf_msg: TFMessage) -> TFMessage:
-        """Filter out transforms in the given TF message that repeat timestamps.
+    def update_tfs(self, tf_msg: TFMessage) -> None:
+        """Store any unseen or newer-than-seen transforms for each child frame.
 
-        For each transform, we map the child frame's name to the latest sequence ID for
-            which we've published a transform for that child frame. Unless this new
-            transform is later than what's been published, we filter it out.
+        For each transform, we map the child frame's name to the latest TF message
+            we have for that frame. The newest of the two transforms is kept.
 
-        :param      tf_msg      Message containing transforms of coordinate frames
-
-        :returns    Filtered message with only unseen or newer-than-seen transforms
+        :param tf_msg: Message containing transforms of coordinate frames
         """
-        keep_tfs = []
-
         for tf in tf_msg.transforms:
-            last_seq = self.latest_tf_seq.get(tf.child_frame_id, None)
+            latest_tf = self.latest_tfs.get(tf.child_frame_id, None)
 
-            # Keep TFs for new frames, or those with later-than-seen sequence IDs
-            if last_seq is None or last_seq < tf.header.seq:
-                self.latest_tf_seq[tf.child_frame_id] = tf.header.seq
-                keep_tfs.append(tf)
+            # Keep TFs for new frames, or those with later-than-seen timestamps
+            if latest_tf is None or latest_tf.header.stamp < tf.header.stamp:
+                self.latest_tfs[tf.child_frame_id] = tf
 
-        return TFMessage(keep_tfs)
+    def publish_latest_tfs(self) -> None:
+        """Publish the stored latest TF messages for each known child frame."""
+        tf_msg = TFMessage()
+        tf_msg.transforms = list(self.latest_tfs.values())
+        self.tf_pub(tf_msg)
 
-    def RobotStateCB(self, results):
+    def _update_tf_loop(self, loop_hz: float = 10.0) -> None:
+        """Publish all known transforms to /tf in a loop."""
+        try:
+            rate_hz = rospy.Rate(loop_hz)
+            while not rospy.is_shutdown():
+                self.publish_latest_tfs()
+                rate_hz.sleep()
+
+        except rospy.ROSInterruptException as ros_e:
+            rospy.logwarn(f"[_update_tf_loop] {ros_e}")
+
+    def RobotStateCB(self, results: Any) -> None:
         """Extract and publish data when the Spot Wrapper gets new robot state data.
 
         Args:
@@ -243,9 +253,7 @@ class SpotROS:
             ## TF ##
             tf_msg = GetTFFromState(state, self.spot_wrapper, self.mode_parent_odom_tf)
             deduplicated_tf = DeduplicateTF(tf_msg, self.last_state_tf_msg)
-            filtered_tf = self.filter_tfs(deduplicated_tf)
-
-            self.tf_pub.publish(filtered_tf)
+            self.update_tfs(deduplicated_tf)
             self.last_state_tf_msg = tf_msg
 
             # Odom Twist #
@@ -268,9 +276,9 @@ class SpotROS:
             foot_array_msg = GetFeetFromState(state, self.spot_wrapper)
             feet_tf_msg = GenerateFeetTF(foot_array_msg)
             deduplicated_tf_feet = DeduplicateTF(feet_tf_msg, self.last_feet_tf_msg)
-            filtered_tf_feet = self.filter_tfs(deduplicated_tf_feet)
+            self.update_tfs(deduplicated_tf_feet)
+            self.publish_latest_tfs()
 
-            self.tf_pub.publish(filtered_tf_feet)
             self.feet_pub.publish(foot_array_msg)
 
             # EStop #
@@ -306,7 +314,7 @@ class SpotROS:
             )
             self.behavior_faults_pub.publish(behavior_fault_state_msg)
 
-    def MetricsCB(self, results):
+    def MetricsCB(self, results: Any) -> None:
         """Process new metrics data received by the Spot Wrapper as a callback.
 
         Args:
@@ -401,17 +409,11 @@ class SpotROS:
 
     def publish_depth_standard_images_callback(self) -> None:
         image_bundle = self.spot_wrapper.spot_images.get_depth_images()
-        (
-            frontleft_image_msg,
-            frontleft_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontleft_image_msg, frontleft_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontleft,
             self.spot_wrapper,
         )
-        (
-            frontright_image_msg,
-            frontright_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontright_image_msg, frontright_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontright,
             self.spot_wrapper,
         )
@@ -547,10 +549,8 @@ class SpotROS:
             self.mode_parent_odom_tf,
         )
         deduplicated_tf = DeduplicateTF(tf_msg, self.last_world_objects_tf_msg)
-        filtered_tf = self.filter_tfs(deduplicated_tf)
-
-        if len(filtered_tf.transforms) > 0:
-            self.tf_pub.publish(filtered_tf)
+        self.update_tfs(deduplicated_tf)
+        self.publish_latest_tfs()
 
         self.last_world_objects_tf_msg = tf_msg
 
@@ -2282,6 +2282,11 @@ class SpotROS:
         feedback_thread = ThreadedFunctionLoop(rate_limited_feedback, rate)
         mobility_thread = ThreadedFunctionLoop(rate_limited_mobility_params, rate)
         motion_thread = ThreadedFunctionLoop(rate_limited_motion_allowed, rate)
+
+        # Create a thread to continually update /tf based on the stored transforms
+        self.publish_tfs_thread = threading.Thread(target=self._update_tf_loop)
+        self.publish_tfs_thread.daemon = True  # Thread exits when main process does
+        self.publish_tfs_thread.start()
 
         rospy.loginfo("Driver started")
         rospy.spin()
