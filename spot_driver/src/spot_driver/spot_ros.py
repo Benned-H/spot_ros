@@ -370,14 +370,14 @@ class SpotROS:
 
     def publish_depth_in_visual_images_callback(self) -> None:
         image_bundle = self.spot_wrapper.spot_images.get_depth_registered_images()
-        (
-            frontleft_image_msg,
-            frontleft_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(image_bundle.frontleft, self.spot_wrapper)
-        (
-            frontright_image_msg,
-            frontright_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(image_bundle.frontright, self.spot_wrapper)
+        frontleft_image_msg, frontleft_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+            image_bundle.frontleft,
+            self.spot_wrapper,
+        )
+        frontright_image_msg, frontright_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+            image_bundle.frontright,
+            self.spot_wrapper,
+        )
         left_image_msg, left_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.left,
             self.spot_wrapper,
@@ -1792,11 +1792,7 @@ class SpotROS:
     def initialize_publishers(self) -> None:
         # Images #
         self.back_image_pub = rospy.Publisher("camera/back/image", Image, queue_size=10)
-        self.frontleft_image_pub = rospy.Publisher(
-            "camera/frontleft/image",
-            Image,
-            queue_size=10,
-        )
+        self.frontleft_image_pub = rospy.Publisher("camera/frontleft/image", Image, queue_size=10)
         self.frontright_image_pub = rospy.Publisher(
             "camera/frontright/image",
             Image,
