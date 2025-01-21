@@ -2,6 +2,12 @@
 
 This package has been excised from the [`spot_ros2`](https://github.com/bdaiinstitute/spot_ros2) repository and modified to work with ROS 1 Noetic.
 
+To re-generate Spot's URDF, run the following command from `spot_ros/spot_description`:
+
+```bash
+xacro arm:=true urdf/spot.urdf.xacro -o urdf/spot.urdf
+```
+
 ## Original README
 
 This ROS 2 package contains the URDF files for Spot. There are two Spot models, referred to as `spot` and `spot_simple`, which primarily differ in the number of links in the base frame. There is also a `standalone_arm` model to view the Spot Arm independently. 

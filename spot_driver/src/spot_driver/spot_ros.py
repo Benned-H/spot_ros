@@ -7,7 +7,7 @@ import logging
 import math
 import threading
 import time
-from typing import Callable
+from typing import Any, Callable
 
 import actionlib
 import rospy
@@ -186,14 +186,14 @@ class ThreadedFunctionLoop:
 class SpotROS:
     """Parent class defining all callbacks to use the wrapper, and keep the wrapper alive."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.spot_wrapper = None
         self.last_state_tf_msg = TFMessage()
         self.last_world_objects_tf_msg = TFMessage()
         self.last_feet_tf_msg = TFMessage()
 
-        # Map each TF child frame to the latest time at which we have its transform
-        self.latest_tf_seq: dict[str, int] = {}
+        # Map the name of each TF child frame to the timestamp of its latest transform
+        self.latest_tf_stamps: dict[str, rospy.Time] = {}
 
         self.callbacks = {}
         """Dictionary listing what callback to use for what data task"""
@@ -207,27 +207,27 @@ class SpotROS:
     def filter_tfs(self, tf_msg: TFMessage) -> TFMessage:
         """Filter out transforms in the given TF message that repeat timestamps.
 
-        For each transform, we map the child frame's name to the latest sequence ID for
-            which we've published a transform for that child frame. Unless this new
-            transform is later than what's been published, we filter it out.
+        For each transform, we map the child frame's name to the latest timestamp
+            for which we've published a transform. If the given transform has a
+            later timestamp, we keep it. Otherwise, the transform is filtered.
 
-        :param      tf_msg      Message containing transforms of coordinate frames
+        :param tf_msg: Message containing transforms of coordinate frames
 
-        :returns    Filtered message with only unseen or newer-than-seen transforms
+        :return: Filtered message with only unseen or newer-than-seen transforms
         """
         keep_tfs = []
 
         for tf in tf_msg.transforms:
-            last_seq = self.latest_tf_seq.get(tf.child_frame_id, None)
+            latest_stamp = self.latest_tf_stamps.get(tf.child_frame_id)
 
-            # Keep TFs for new frames, or those with later-than-seen sequence IDs
-            if last_seq is None or last_seq < tf.header.seq:
-                self.latest_tf_seq[tf.child_frame_id] = tf.header.seq
+            # Keep TFs for new frames, or those with later-than-seen timestamps
+            if latest_stamp is None or latest_stamp < tf.header.stamp:
+                self.latest_tf_stamps[tf.child_frame_id] = tf.header.stamp
                 keep_tfs.append(tf)
 
         return TFMessage(keep_tfs)
 
-    def RobotStateCB(self, results):
+    def RobotStateCB(self, results: Any) -> None:
         """Extract and publish data when the Spot Wrapper gets new robot state data.
 
         Args:
@@ -245,7 +245,9 @@ class SpotROS:
             deduplicated_tf = DeduplicateTF(tf_msg, self.last_state_tf_msg)
             filtered_tf = self.filter_tfs(deduplicated_tf)
 
-            self.tf_pub.publish(filtered_tf)
+            if len(filtered_tf.transforms) > 0:
+                self.tf_pub.publish(filtered_tf)
+
             self.last_state_tf_msg = tf_msg
 
             # Odom Twist #
@@ -270,7 +272,9 @@ class SpotROS:
             deduplicated_tf_feet = DeduplicateTF(feet_tf_msg, self.last_feet_tf_msg)
             filtered_tf_feet = self.filter_tfs(deduplicated_tf_feet)
 
-            self.tf_pub.publish(filtered_tf_feet)
+            if len(filtered_tf_feet.transforms) > 0:
+                self.tf_pub.publish(filtered_tf_feet)
+
             self.feet_pub.publish(foot_array_msg)
 
             # EStop #
@@ -306,7 +310,7 @@ class SpotROS:
             )
             self.behavior_faults_pub.publish(behavior_fault_state_msg)
 
-    def MetricsCB(self, results):
+    def MetricsCB(self, results: Any) -> None:
         """Process new metrics data received by the Spot Wrapper as a callback.
 
         Args:
@@ -364,19 +368,13 @@ class SpotROS:
 
             self.lease_pub.publish(lease_array_msg)
 
-    def publish_depth_in_visual_images_callback(self):
+    def publish_depth_in_visual_images_callback(self) -> None:
         image_bundle = self.spot_wrapper.spot_images.get_depth_registered_images()
-        (
-            frontleft_image_msg,
-            frontleft_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontleft_image_msg, frontleft_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontleft,
             self.spot_wrapper,
         )
-        (
-            frontright_image_msg,
-            frontright_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontright_image_msg, frontright_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontright,
             self.spot_wrapper,
         )
@@ -405,19 +403,13 @@ class SpotROS:
         self.right_depth_in_visual_info_pub.publish(right_camera_info)
         self.back_depth_in_visual_info_pub.publish(back_camera_info)
 
-    def publish_depth_standard_images_callback(self):
+    def publish_depth_standard_images_callback(self) -> None:
         image_bundle = self.spot_wrapper.spot_images.get_depth_images()
-        (
-            frontleft_image_msg,
-            frontleft_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontleft_image_msg, frontleft_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontleft,
             self.spot_wrapper,
         )
-        (
-            frontright_image_msg,
-            frontright_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontright_image_msg, frontright_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontright,
             self.spot_wrapper,
         )
@@ -446,19 +438,13 @@ class SpotROS:
         self.right_depth_info_pub.publish(right_camera_info)
         self.back_depth_info_pub.publish(back_camera_info)
 
-    def publish_camera_images_callback(self):
+    def publish_camera_images_callback(self) -> None:
         image_bundle = self.spot_wrapper.spot_images.get_camera_images()
-        (
-            frontleft_image_msg,
-            frontleft_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontleft_image_msg, frontleft_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontleft,
             self.spot_wrapper,
         )
-        (
-            frontright_image_msg,
-            frontright_camera_info,
-        ) = bosdyn_data_to_image_and_camera_info_msgs(
+        frontright_image_msg, frontright_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
             image_bundle.frontright,
             self.spot_wrapper,
         )
@@ -499,7 +485,7 @@ class SpotROS:
         else:
             self.publish_depth_standard_images_callback()
 
-    def HandImageCB(self, results):
+    def HandImageCB(self, results) -> None:
         """Callback for when the Spot Wrapper gets new hand image data.
 
         Args:
@@ -997,8 +983,8 @@ class SpotROS:
         """
         mobility_params = self.spot_wrapper.get_mobility_params()
 
-        # We always overwrite the previous settings of these values. Reject if not within recommended limits (as on
-        # the controller)
+        # We always overwrite the previous settings of these values. Reject if not within
+        # recommended limits (as on the controller)
         if 0.2 <= req.terrain_params.ground_mu_hint <= 0.8:
             # For some reason assignment to ground_mu_hint is not allowed once the terrain params are initialised
             # Must initialise with the protobuf type DoubleValue for initialisation to work
@@ -1008,7 +994,8 @@ class SpotROS:
         else:
             return (
                 False,
-                f"Failed to set terrain params, ground_mu_hint of {req.terrain_params.ground_mu_hint} is not in the range [0.4, 0.8]",
+                "Failed to set terrain params, ground_mu_hint of "
+                f"{req.terrain_params.ground_mu_hint} is not in the range [0.4, 0.8]",
             )
 
         if req.terrain_params.grated_surfaces_mode in [1, 2, 3]:
@@ -1016,7 +1003,8 @@ class SpotROS:
         else:
             return (
                 False,
-                f"Failed to set terrain params, grated_surfaces_mode {req.terrain_params.grated_surfaces_mode} was not one of [1, 2, 3]",
+                "Failed to set terrain params, grated_surfaces_mode "
+                f"{req.terrain_params.grated_surfaces_mode} was not one of [1, 2, 3]",
             )
 
         mobility_params.terrain_params.CopyFrom(terrain_params)
@@ -1219,7 +1207,7 @@ class SpotROS:
         resp = self.spot_wrapper.spot_docking.get_docking_state()
         return GetDockStateResponse(GetDockStatesFromState(resp))
 
-    def _send_trajectory_command(self, pose, duration, precise=True):
+    def _send_trajectory_command(self, pose, duration, precise=True) -> tuple[bool, str] | None:
         """Send a trajectory command to the robot.
 
         Args:
@@ -1326,13 +1314,11 @@ class SpotROS:
             ),
         )
 
-    def _set_in_motion_or_idle_body_pose(self, pose):
+    def _set_in_motion_or_idle_body_pose(self, pose) -> None:
         """Set the pose of the body which should be applied while in motion or idle.
 
         Args:
             pose: Pose to be applied to the body. Only the body height is taken from the position component
-
-        Returns:
 
         """
         q = Quaternion()
@@ -1408,7 +1394,7 @@ class SpotROS:
                 )
             rospy.Rate(10).sleep()
 
-    def handle_navigate_to(self, req: NavigateToGoal):
+    def handle_navigate_to(self, req: NavigateToGoal) -> None:
         if not self.robot_allowed_to_move():
             rospy.logerr("navigate_to was requested but robot is not allowed to move.")
             self.navigate_as.set_aborted(
@@ -1437,7 +1423,7 @@ class SpotROS:
         else:
             self.navigate_as.set_aborted(NavigateToResult(resp[0], resp[1]))
 
-    def handle_navigate_route_feedback(self):
+    def handle_navigate_route_feedback(self) -> None:
         """Thread function to send navigate_route feedback."""
         while not rospy.is_shutdown() and self.run_navigate_route:
             localization_state = self.spot_wrapper._graph_nav_client.get_localization_state()
@@ -1447,7 +1433,7 @@ class SpotROS:
                 )
             rospy.Rate(10).sleep()
 
-    def handle_navigate_route(self, req: NavigateRouteGoal):
+    def handle_navigate_route(self, req: NavigateRouteGoal) -> None:
         if not self.robot_allowed_to_move():
             rospy.logerr(
                 "navigate_route was requested but robot is not allowed to move.",
@@ -1478,7 +1464,7 @@ class SpotROS:
         else:
             self.navigate_route_as.set_aborted(NavigateRouteResult(resp[0], resp[1]))
 
-    def populate_camera_static_transforms(self, image_data):
+    def populate_camera_static_transforms(self, image_data) -> None:
         """Extract the camera frame transforms from a snapshot for an image task.
 
         These are the transforms from body->frontleft->frontleft_fisheye, for example.
@@ -1549,11 +1535,7 @@ class SpotROS:
         # static. We can ignore the body frame because it is a child of odom or vision,
         # depending on the mode_parent_odom_tf, and will be published by the non-static
         # transform publishing that is done by the state callback.
-        excluded_frames = [
-            self.tf_name_vision_odom,
-            self.tf_name_kinematic_odom,
-            "body",
-        ]
+        excluded_frames = [self.tf_name_vision_odom, self.tf_name_kinematic_odom, "body"]
         for (
             frame_name
         ) in point_cloud_data.point_cloud.source.transforms_snapshot.child_to_parent_edge_map:
@@ -1680,7 +1662,7 @@ class SpotROS:
         rospy.Rate(0.25).sleep()
         self.spot_wrapper.disconnect()
 
-    def publish_mobility_params(self):
+    def publish_mobility_params(self) -> None:
         mobility_params_msg = MobilityParams()
         try:
             mobility_params = self.spot_wrapper.get_mobility_params()
@@ -1807,14 +1789,10 @@ class SpotROS:
             )
             return
 
-    def initialize_publishers(self):
+    def initialize_publishers(self) -> None:
         # Images #
         self.back_image_pub = rospy.Publisher("camera/back/image", Image, queue_size=10)
-        self.frontleft_image_pub = rospy.Publisher(
-            "camera/frontleft/image",
-            Image,
-            queue_size=10,
-        )
+        self.frontleft_image_pub = rospy.Publisher("camera/frontleft/image", Image, queue_size=10)
         self.frontright_image_pub = rospy.Publisher(
             "camera/frontright/image",
             Image,
@@ -2073,7 +2051,7 @@ class SpotROS:
             queue_size=1,
         )
 
-    def initialize_services(self):
+    def initialize_services(self) -> None:
         rospy.Service("claim", Trigger, self.handle_claim)
         rospy.Service("release", Trigger, self.handle_release)
         rospy.Service("self_right", Trigger, self.handle_self_right)
@@ -2123,6 +2101,7 @@ class SpotROS:
         rospy.Service("docking_state", GetDockState, self.handle_get_docking_state)
         # Spot Check
         rospy.Service("spot_check", SpotCheck, self.handle_spot_check)
+
         # Arm Services #########################################
         rospy.Service("arm_stow", Trigger, self.handle_arm_stow)
         rospy.Service("arm_unstow", Trigger, self.handle_arm_unstow)
@@ -2197,7 +2176,7 @@ class SpotROS:
         )
         self.dock_as.start()
 
-    def main(self):
+    def main(self) -> None:
         """Get config from ROS, initialize the wrapper, hold lease for wrapper, and update async tasks at the ROS rate."""
         rospy.init_node("spot_ros", anonymous=True)
 
@@ -2207,8 +2186,8 @@ class SpotROS:
         for param, rate in self.rates.items():
             if rate > loop_rate:
                 rospy.logwarn(
-                    f"{param} has a rate of {rate} specified, which is higher than the "
-                    f"loop rate of {loop_rate}. It will not be published at the expected frequency.",
+                    f"{param} has a rate of {rate} specified, which is higher than the loop "
+                    f"rate of {loop_rate}. It will not be published at the expected frequency.",
                 )
 
         rate = rospy.Rate(loop_rate)
@@ -2290,7 +2269,7 @@ class SpotROS:
         )
 
         # Retrieval and publication of images can take some time, so break it out into
-        # its own thread. This could probably be sped up further by breaking it out into separate nodes.
+        # its own thread. This could probably be sped up further by breaking into separate nodes.
         camera_publish_thread = ThreadedFunctionLoop(rate_publish_camera_images, rate)
         depth_publish_thread = ThreadedFunctionLoop(rate_publish_depth_images, rate)
         update_tasks_thread = ThreadedFunctionLoop(self.spot_wrapper.updateTasks, rate)
