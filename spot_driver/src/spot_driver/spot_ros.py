@@ -7,6 +7,7 @@ import logging
 import math
 import threading
 import time
+from copy import deepcopy
 from typing import Any, Callable
 
 import actionlib
@@ -20,6 +21,7 @@ from bosdyn.client import math_helpers
 from geometry_msgs.msg import (
     Pose,
     PoseStamped,
+    TransformStamped,
     Twist,
     TwistWithCovarianceStamped,
 )
@@ -194,6 +196,7 @@ class SpotROS:
 
         # Map the name of each TF child frame to the timestamp of its latest transform
         self.latest_tf_stamps: dict[str, rospy.Time] = {}
+        self.latest_tfs: dict[str, TransformStamped] = {}
 
         self.callbacks = {}
         """Dictionary listing what callback to use for what data task"""
@@ -223,6 +226,7 @@ class SpotROS:
             # Keep TFs for new frames, or those with later-than-seen timestamps
             if latest_stamp is None or latest_stamp < tf.header.stamp:
                 self.latest_tf_stamps[tf.child_frame_id] = tf.header.stamp
+                self.latest_tfs[tf.child_frame_id] = tf
                 keep_tfs.append(tf)
 
         return TFMessage(keep_tfs)
@@ -2277,5 +2281,27 @@ class SpotROS:
         mobility_thread = ThreadedFunctionLoop(rate_limited_mobility_params, rate)
         motion_thread = ThreadedFunctionLoop(rate_limited_motion_allowed, rate)
 
+        # Create a thread to continually update /tf based on the stored transforms
+        self.tf_broadcaster_thread = threading.Thread(target=self._update_tf_loop)
+        self.tf_broadcaster_thread.daemon = True  # Thread exits when main process does
+        self.tf_broadcaster_thread.start()
+
         rospy.loginfo("Driver started")
         rospy.spin()
+
+    def _update_tf_loop(self) -> None:
+        """Publish known transforms from Spot to /tf in a loop."""
+        try:
+            rate_hz = rospy.Rate(20.0)
+            while not rospy.is_shutdown():
+                tf_msg = TFMessage()
+                for tf in self.latest_tfs.values():
+                    new_tf = deepcopy(tf)
+                    new_tf.header.stamp = rospy.Time.now()
+                    tf_msg.transforms.append(new_tf)
+
+                self.tf_pub.publish(tf_msg)
+                rate_hz.sleep()
+
+        except rospy.ROSInterruptException as ros_e:
+            rospy.logwarn(f"[_publish_object_tf_loop] {ros_e}")
