@@ -2304,4 +2304,4 @@ class SpotROS:
                 rate_hz.sleep()
 
         except rospy.ROSInterruptException as ros_e:
-            rospy.logwarn(f"[_publish_object_tf_loop] {ros_e}")
+            rospy.logwarn(f"[SpotROS._update_tf_loop] {ros_e}")
