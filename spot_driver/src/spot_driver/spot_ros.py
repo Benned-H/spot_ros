@@ -2263,19 +2263,19 @@ class SpotROS:
             self.rates["mobility_params"],
         )
         rate_limited_motion_allowed = RateLimitedCall(self.publish_allow_motion, 10)
-        rate_publish_camera_images = RateLimitedCall(
-            self.publish_camera_images_callback,
-            max(0.0, self.rates.get("camera_images", 10)),
-        )
-        rate_publish_depth_images = RateLimitedCall(
-            self.publish_depth_images_callback,
-            max(0.0, self.rates.get("camera_images", 10)),
-        )
+        # rate_publish_camera_images = RateLimitedCall(
+        #     self.publish_camera_images_callback,
+        #     max(0.0, self.rates.get("camera_images", 10)),
+        # )
+        # rate_publish_depth_images = RateLimitedCall(
+        #     self.publish_depth_images_callback,
+        #     max(0.0, self.rates.get("camera_images", 10)),
+        # )
 
         # Retrieval and publication of images can take some time, so break it out into
         # its own thread. This could probably be sped up further by breaking into separate nodes.
-        camera_publish_thread = ThreadedFunctionLoop(rate_publish_camera_images, rate)
-        depth_publish_thread = ThreadedFunctionLoop(rate_publish_depth_images, rate)
+        # camera_publish_thread = ThreadedFunctionLoop(rate_publish_camera_images, rate)
+        # depth_publish_thread = ThreadedFunctionLoop(rate_publish_depth_images, rate)
         update_tasks_thread = ThreadedFunctionLoop(self.spot_wrapper.updateTasks, rate)
         feedback_thread = ThreadedFunctionLoop(rate_limited_feedback, rate)
         mobility_thread = ThreadedFunctionLoop(rate_limited_mobility_params, rate)
