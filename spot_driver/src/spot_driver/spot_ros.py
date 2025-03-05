@@ -482,6 +482,10 @@ class SpotROS:
         self.populate_camera_static_transforms(image_bundle.left)
         self.populate_camera_static_transforms(image_bundle.right)
         self.populate_camera_static_transforms(image_bundle.back)
+        if hasattr(image_bundle, "hand"):
+            self.populate_camera_static_transforms(image_bundle.hand)
+        else:
+            rospy.loginfo_throttle(5, "[spot_ros] Spot was determined not to have a hand")
 
     def publish_depth_images_callback(self):
         if self.depth_in_visual:
