@@ -2041,7 +2041,7 @@ class SpotROS:
         )
 
     def initialize_subscribers(self):
-        rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_callback, queue_size=1)
+        # rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_callback, queue_size=1)
         rospy.Subscriber(
             "go_to_pose",
             PoseStamped,
