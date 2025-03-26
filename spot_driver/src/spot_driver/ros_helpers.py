@@ -582,6 +582,10 @@ def GenerateFeetTF(
     foot_tfs = TFMessage()
     if not time_now:
         time_now = rospy.Time.now()
+
+    x_sum = 0
+    y_sum = 0
+    min_z = np.inf
     for idx, foot_state in enumerate(foot_states_msg.states):
         foot_transform = Transform()
         # Rotation of the foot is not given
@@ -589,6 +593,10 @@ def GenerateFeetTF(
         foot_transform.translation.x = foot_state.foot_position_rt_body.x
         foot_transform.translation.y = foot_state.foot_position_rt_body.y
         foot_transform.translation.z = foot_state.foot_position_rt_body.z
+
+        x_sum += foot_transform.translation.x
+        y_sum += foot_transform.translation.y
+        min_z = min(min_z, foot_transform.translation.z)
 
         foot_tfs.transforms.append(
             populateTransformStamped(
@@ -598,6 +606,22 @@ def GenerateFeetTF(
                 foot_transform,
             ),
         )
+
+    # Create a frame marking the minimum z-coordinate across Spot's feet
+    foot_min_z_tf = Transform()
+    foot_min_z_tf.rotation.w = 1
+    foot_min_z_tf.translation.x = x_sum / len(foot_states_msg.states)
+    foot_min_z_tf.translation.y = y_sum / len(foot_states_msg.states)
+    foot_min_z_tf.translation.z = min_z
+
+    foot_tfs.transforms.append(
+        populateTransformStamped(
+            time_now,
+            "body",
+            "foot_min_z",
+            foot_min_z_tf,
+        ),
+    )
 
     return foot_tfs
 
@@ -1165,7 +1189,7 @@ def GetTFFromWorldObjects(
         spot_wrapper: SpotWrapper object to convert robotToLocalTime
         parent_frame: Parent frame to be used in the TFMessage
 
-    returns:
+    Returns:
         TFMessage ROS message, describing position of World Objects relative to parent_frame
 
     """
