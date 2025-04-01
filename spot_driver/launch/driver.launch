@@ -14,8 +14,8 @@
   <arg name="max_linear_velocity_y_mps" default="0.5" />
   <arg name="max_angular_velocity_z_mps" default="0.5" />
 
-  <!-- Is Spot allowed to move? Default: Yes -->
-  <arg name="allow_motion" default="true" />
+  <!-- Is Spot allowed to move? Default: No -->
+  <arg name="allow_motion" default="false" />
 
   <!-- Configuration file for the Spot driver. Allows us to change the publication rate
     of data from Spot, auto-claim the lease, auto-power on, and auto-stand -->
@@ -40,7 +40,7 @@
   <node pkg="spot_driver" type="spot_ros" name="spot_ros" ns="spot" output="screen">
     <rosparam file="$(arg driver_config)" command="load" />
     <rosparam file="$(arg spot_secrets_yaml)" command="load" />
-    
+
     <param name="estop_timeout" value="$(arg estop_timeout)" />
     <param name="autonomy_enabled" value="$(arg autonomy_enabled)" />
     <param name="estop_timeout" value="$(arg estop_timeout)" />
