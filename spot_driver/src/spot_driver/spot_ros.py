@@ -482,6 +482,10 @@ class SpotROS:
         self.populate_camera_static_transforms(image_bundle.left)
         self.populate_camera_static_transforms(image_bundle.right)
         self.populate_camera_static_transforms(image_bundle.back)
+        if hasattr(image_bundle, "hand"):
+            self.populate_camera_static_transforms(image_bundle.hand)
+        else:
+            rospy.loginfo_throttle(5, "[spot_ros] Spot was determined not to have a hand")
 
     def publish_depth_images_callback(self):
         if self.depth_in_visual:
@@ -2200,13 +2204,13 @@ class SpotROS:
         self.password = rospy.get_param("~password", "default_value")
         self.hostname = rospy.get_param("~hostname", "default_value")
         self.motion_deadzone = rospy.get_param("~deadzone", 0.05)
-        self.start_estop = rospy.get_param("~start_estop", True)
+        self.start_estop = rospy.get_param("~start_estop", default=True)
         self.estop_timeout = rospy.get_param("~estop_timeout", 9.0)
-        self.autonomy_enabled = rospy.get_param("~autonomy_enabled", True)
-        self.allow_motion = rospy.get_param("~allow_motion", True)
-        self.use_take_lease = rospy.get_param("~use_take_lease", False)
-        self.get_lease_on_action = rospy.get_param("~get_lease_on_action", False)
-        self.depth_in_visual = rospy.get_param("~depth_in_visual", False)
+        self.autonomy_enabled = rospy.get_param("~autonomy_enabled", default=True)
+        self.allow_motion = rospy.get_param("~allow_motion", default=True)
+        self.use_take_lease = rospy.get_param("~use_take_lease", default=False)
+        self.get_lease_on_action = rospy.get_param("~get_lease_on_action", default=False)
+        self.depth_in_visual = rospy.get_param("~depth_in_visual", default=False)
         self.is_charging = False
 
         self.initialize_tf2()

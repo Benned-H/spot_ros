@@ -582,6 +582,7 @@ def GenerateFeetTF(
     foot_tfs = TFMessage()
     if not time_now:
         time_now = rospy.Time.now()
+
     for idx, foot_state in enumerate(foot_states_msg.states):
         foot_transform = Transform()
         # Rotation of the foot is not given
@@ -1165,7 +1166,7 @@ def GetTFFromWorldObjects(
         spot_wrapper: SpotWrapper object to convert robotToLocalTime
         parent_frame: Parent frame to be used in the TFMessage
 
-    returns:
+    Returns:
         TFMessage ROS message, describing position of World Objects relative to parent_frame
 
     """

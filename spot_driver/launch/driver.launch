@@ -14,8 +14,8 @@
   <arg name="max_linear_velocity_y_mps" default="0.5" />
   <arg name="max_angular_velocity_z_mps" default="0.5" />
 
-  <!-- Is Spot allowed to move? Default: Yes -->
-  <arg name="allow_motion" default="true" />
+  <!-- Is Spot allowed to move? Default: No -->
+  <arg name="allow_motion" default="false" />
 
   <!-- Configuration file for the Spot driver. Allows us to change the publication rate
     of data from Spot, auto-claim the lease, auto-power on, and auto-stand -->
