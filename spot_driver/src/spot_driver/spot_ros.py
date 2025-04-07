@@ -511,7 +511,7 @@ class SpotROS:
 
         """
         data = self.spot_wrapper.hand_images
-        if False:
+        if data:
             image_msg0, camera_info_msg0 = GetImageMsg(data[0], self.spot_wrapper)
             self.hand_image_mono_pub.publish(image_msg0)
             self.hand_image_mono_info_pub.publish(camera_info_msg0)
