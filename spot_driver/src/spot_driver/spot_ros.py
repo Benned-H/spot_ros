@@ -465,6 +465,20 @@ class SpotROS:
         #     self.spot_wrapper,
         # )
 
+        # Publish data from Spot's hand camera (if Spot has one)
+        if hasattr(image_bundle, "hand"):
+            hand_image_msg, hand_camera_info = bosdyn_data_to_image_and_camera_info_msgs(
+                image_bundle.hand,
+                self.spot_wrapper,
+            )
+
+            self.hand_image_color_pub.publish(hand_image_msg)
+            self.hand_image_color_info_pub.publish(hand_camera_info)
+
+            self.populate_camera_static_transforms(image_bundle.hand)
+        else:
+            rospy.loginfo_throttle(5, "[spot_ros] Spot was determined not to have a hand")
+
         # self.frontleft_image_pub.publish(frontleft_image_msg)
         # self.frontright_image_pub.publish(frontright_image_msg)
         # self.left_image_pub.publish(left_image_msg)
@@ -482,10 +496,6 @@ class SpotROS:
         self.populate_camera_static_transforms(image_bundle.left)
         self.populate_camera_static_transforms(image_bundle.right)
         self.populate_camera_static_transforms(image_bundle.back)
-        if hasattr(image_bundle, "hand"):
-            self.populate_camera_static_transforms(image_bundle.hand)
-        else:
-            rospy.loginfo_throttle(5, "[spot_ros] Spot was determined not to have a hand")
 
     def publish_depth_images_callback(self):
         if self.depth_in_visual:
@@ -501,7 +511,7 @@ class SpotROS:
 
         """
         data = self.spot_wrapper.hand_images
-        if data:
+        if False:
             image_msg0, camera_info_msg0 = GetImageMsg(data[0], self.spot_wrapper)
             self.hand_image_mono_pub.publish(image_msg0)
             self.hand_image_mono_info_pub.publish(camera_info_msg0)
