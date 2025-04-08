@@ -50,6 +50,7 @@
     <param name="allow_motion" value="$(arg allow_motion)" />
     <remap from="joint_states" to="/joint_states" />
     <remap from="tf" to="/tf" />
+    <remap from="cmd_vel" to="/null/cmd_vel" />
   </node>
 
   <!-- Launch a multiplexer to prioritize the various sources of command velocity messages -->
