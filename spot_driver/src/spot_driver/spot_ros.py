@@ -1019,28 +1019,28 @@ class SpotROS:
         self.spot_wrapper.set_mobility_params(mobility_params)
         return True, "Successfully set terrain params"
 
-    def trajectory_callback(self, msg: PoseStamped) -> None:
-        """Handle a callback from the trajectory topic requesting to go to a location.
+    # def trajectory_callback(self, msg: PoseStamped) -> None:
+    #     """Handle a callback from the trajectory topic requesting to go to a location.
 
-        The trajectory will time out after 5 seconds
+    #     The trajectory will time out after 5 seconds
 
-        Args:
-            msg: PoseStamped containing desired pose
+    #     Args:
+    #         msg: PoseStamped containing desired pose
 
-        """
-        if not self.robot_allowed_to_move():
-            rospy.logerr(
-                "Trajectory topic received a message but the robot is not allowed to move.",
-            )
-            return
+    #     """
+    #     if not self.robot_allowed_to_move():
+    #         rospy.logerr(
+    #             "Trajectory topic received a message but the robot is not allowed to move.",
+    #         )
+    #         return
 
-        try:
-            self._send_trajectory_command(
-                self._transform_pose_to_body_frame(msg),
-                rospy.Duration(5),
-            )
-        except tf2_ros.LookupException as e:
-            rospy.logerr(str(e))
+    #     try:
+    #         self._send_trajectory_command(
+    #             self._transform_pose_to_body_frame(msg),
+    #             rospy.Duration(5),
+    #         )
+    #     except tf2_ros.LookupException as e:
+    #         rospy.logerr(str(e))
 
     def handle_trajectory(self, req: TrajectoryGoal):
         """ROS actionserver execution handler to handle receiving a request to move to a location."""
@@ -1248,13 +1248,13 @@ class SpotROS:
             precise_position=precise,
         )
 
-    def cmd_vel_callback(self, data):
-        """Callback for cmd_vel command."""
-        if not self.robot_allowed_to_move():
-            rospy.logerr("cmd_vel received a message but motion is not allowed.")
-            return
+    # def cmd_vel_callback(self, data):
+    #     """Callback for cmd_vel command."""
+    #     if not self.robot_allowed_to_move():
+    #         rospy.logerr("cmd_vel received a message but motion is not allowed.")
+    #         return
 
-        self.spot_wrapper.velocity_cmd(data.linear.x, data.linear.y, data.angular.z)
+    #     self.spot_wrapper.velocity_cmd(data.linear.x, data.linear.y, data.angular.z)
 
     def in_motion_or_idle_pose_cb(self, data):
         """Callback for pose to be used while in motion or idling.
@@ -2045,13 +2045,13 @@ class SpotROS:
         )
 
     def initialize_subscribers(self):
-        rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_callback, queue_size=1)
-        rospy.Subscriber(
-            "go_to_pose",
-            PoseStamped,
-            self.trajectory_callback,
-            queue_size=1,
-        )
+        # rospy.Subscriber("cmd_vel", Twist, self.cmd_vel_callback, queue_size=1)
+        # rospy.Subscriber(
+        #     "go_to_pose",
+        #     PoseStamped,
+        #     self.trajectory_callback,
+        #     queue_size=1,
+        # )
         rospy.Subscriber(
             "in_motion_or_idle_body_pose",
             Pose,
@@ -2247,16 +2247,16 @@ class SpotROS:
         max_angular_z = rospy.get_param("~max_angular_velocity_z", 0)
         self.set_velocity_limits(max_linear_x, max_linear_y, max_angular_z)
 
-        self.auto_claim = rospy.get_param("~auto_claim", False)
-        self.auto_power_on = rospy.get_param("~auto_power_on", False)
-        self.auto_stand = rospy.get_param("~auto_stand", False)
+        self.auto_claim = rospy.get_param("~auto_claim", default=False)
+        self.auto_power_on = rospy.get_param("~auto_power_on", default=False)
+        self.auto_stand = rospy.get_param("~auto_stand", default=False)
 
-        if self.auto_claim:
-            self.spot_wrapper.claim()
-            if self.auto_power_on:
-                self.spot_wrapper.power_on()
-                if self.auto_stand:
-                    self.spot_wrapper.stand()
+        # if self.auto_claim:
+        #     self.spot_wrapper.claim()
+        #     if self.auto_power_on:
+        #         self.spot_wrapper.power_on()
+        #         if self.auto_stand:
+        #             self.spot_wrapper.stand()
 
         rate_limited_feedback = RateLimitedCall(
             self.publish_feedback,
