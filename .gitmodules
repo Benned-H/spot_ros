@@ -1,4 +1,0 @@
-[submodule "spot_wrapper"]
-	path = spot_wrapper
-	url = git@github.com:alper111/spot_wrapper.git
-	branch = main
