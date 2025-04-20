@@ -48,7 +48,7 @@
     <param name="max_linear_velocity_y" value="$(arg max_linear_velocity_y_mps)" />
     <param name="max_angular_velocity_z" value="$(arg max_angular_velocity_z_mps)" />
     <param name="allow_motion" value="$(arg allow_motion)" />
-    <remap from="joint_states" to="/joint_states" />
+    <remap from="joint_states" to="/spot/joint_states" />
     <remap from="tf" to="/tf" />
   </node>
 
